@@ -165,8 +165,8 @@ class Game:
                         y * CELL_SIZE + BORDER_WIDTH // 2,
                         x * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
                         y * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
-                        outline=SELECT_BORDER_COLOR,
-                        width=HOVER_BORDER_COLOR,
+                        outline=HOVER_BORDER_COLOR,
+                        width=BORDER_WIDTH,
                     )
 
                 if self.__selected_cell:
