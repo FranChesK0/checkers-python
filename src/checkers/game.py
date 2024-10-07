@@ -414,10 +414,12 @@ class Game:
         moves_list = []
 
         if side == SideType.WHITE:
-            friendly_checkers = WHITE_CHECKERS
+            cur_man_checker_type = CheckerType.WHITE_MAN
+            cur_king_checker_type = CheckerType.WHITE_KING
             opponent_checkers = BLACK_CHECKERS
         elif side == SideType.BLACK:
-            friendly_checkers = BLACK_CHECKERS
+            cur_man_checker_type = CheckerType.BLACK_MAN
+            cur_king_checker_type = CheckerType.BLACK_KING
             opponent_checkers = WHITE_CHECKERS
         else:
             return moves_list
@@ -425,7 +427,8 @@ class Game:
         for y in range(self.__field.y_size):
             for x in range(self.__field.x_size):
                 # if man checker
-                if self.__field.type_at(x, y) == friendly_checkers[0]:
+                if self.__field.type_at(x, y) == cur_man_checker_type:
+                    offset: Point
                     for offset in MOVE_OFFSETS:
                         if not self.__field.is_within(
                             x + offset.x * 2, y + offset.y * 2
@@ -441,7 +444,7 @@ class Game:
                                 Move(x, y, x + offset.x * 2, y + offset.y * 2)
                             )
                 # if king checker
-                elif self.__field.type_at(x, y) == friendly_checkers[1]:
+                elif self.__field.type_at(x, y) == cur_king_checker_type:
                     for offset in MOVE_OFFSETS:
                         if not self.__field.is_within(
                             x + offset.x * 2, y + offset.y * 2
@@ -465,12 +468,9 @@ class Game:
                                 ):
                                     has_opponent_checker_on_way = True
                                     continue
-                                elif (
-                                    self.__field.type_at(
-                                        x + offset.x * shift, y + offset.y * shift
-                                    )
-                                    in friendly_checkers
-                                ):
+                                elif self.__field.type_at(
+                                    x + offset.x * shift, y + offset.y * shift
+                                ) in (cur_man_checker_type, cur_king_checker_type):
                                     break
 
                             if has_opponent_checker_on_way:
@@ -497,16 +497,18 @@ class Game:
         moves_list = []
 
         if side == SideType.WHITE:
-            friendly_checkers = WHITE_CHECKERS
+            cur_man_checker_type = CheckerType.WHITE_MAN
+            cur_king_checker_type = CheckerType.WHITE_KING
         elif side == SideType.BLACK:
-            friendly_checkers = BLACK_CHECKERS
+            cur_man_checker_type = CheckerType.BLACK_MAN
+            cur_king_checker_type = CheckerType.BLACK_KING
         else:
             return moves_list
 
         for y in range(self.__field.y_size):
             for x in range(self.__field.x_size):
                 # if man checker
-                if self.__field.type_at(x, y) == friendly_checkers[0]:
+                if self.__field.type_at(x, y) == cur_man_checker_type:
                     for offset in (
                         MOVE_OFFSETS[:2] if side == SideType.WHITE else MOVE_OFFSETS[2:]
                     ):
@@ -518,7 +520,7 @@ class Game:
                         ):
                             moves_list.append(Move(x, y, x + offset.x, y + offset.y))
                 # if king checker
-                elif self.__field.type_at(x, y) == friendly_checkers[1]:
+                elif self.__field.type_at(x, y) == cur_king_checker_type:
                     for offset in MOVE_OFFSETS:
                         if not self.__field.is_within(x + offset.x, y + offset.y):
                             continue
