@@ -26,7 +26,7 @@ FIELD_COLORS: List[str] = ["#E7CFA9", "#927456"]
 # Color of the border when hovering
 HOVER_BORDER_COLOR: str = "#54B346"
 # Color of the border when selected
-SELECT_BORDER_COLOR: str = "$944444"
+SELECT_BORDER_COLOR: str = "#944444"
 # Color of possible moves
 POSSIBLE_MOVE_COLOR: str = "#944444"
 
