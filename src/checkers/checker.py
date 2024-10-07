@@ -2,7 +2,7 @@ from .enums import CheckerType
 
 
 class Checker:
-    def __init__(self, type: CheckerType) -> None:
+    def __init__(self, type: CheckerType = CheckerType.NONE) -> None:
         self.__type = type
 
     @property
