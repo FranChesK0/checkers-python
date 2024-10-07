@@ -119,14 +119,8 @@ class Game:
             for _ in range(100 // RENDER_PARAMS.ANIMATION_VELOCITY):
                 self.__canvas.move(
                     animated_checker,
-                    RENDER_PARAMS.ANIMATION_VELOCITY
-                    / 100
-                    * RENDER_PARAMS.CELL_SIZE
-                    * dx,
-                    RENDER_PARAMS.ANIMATION_VELOCITY
-                    / 100
-                    * RENDER_PARAMS.CELL_SIZE
-                    * dy,
+                    RENDER_PARAMS.ANIMATION_VELOCITY / 100 * RENDER_PARAMS.CELL_SIZE * dx,
+                    RENDER_PARAMS.ANIMATION_VELOCITY / 100 * RENDER_PARAMS.CELL_SIZE * dy,
                 )
                 self.__canvas.update()
                 sleep(0.01)
@@ -191,15 +185,9 @@ class Game:
                                 move.to_y * RENDER_PARAMS.CELL_SIZE
                                 + RENDER_PARAMS.CELL_SIZE / 3,
                                 move.to_x * RENDER_PARAMS.CELL_SIZE
-                                + (
-                                    RENDER_PARAMS.CELL_SIZE
-                                    - RENDER_PARAMS.CELL_SIZE / 3
-                                ),
+                                + (RENDER_PARAMS.CELL_SIZE - RENDER_PARAMS.CELL_SIZE / 3),
                                 move.to_y * RENDER_PARAMS.CELL_SIZE
-                                + (
-                                    RENDER_PARAMS.CELL_SIZE
-                                    - RENDER_PARAMS.CELL_SIZE / 3
-                                ),
+                                + (RENDER_PARAMS.CELL_SIZE - RENDER_PARAMS.CELL_SIZE / 3),
                                 fill=COLORS.POSSIBLE_MOVE_COLOR,
                                 width=0,
                             )
@@ -226,16 +214,12 @@ class Game:
             move.to_y == 0
             and self.__field.type_at(move.from_x, move.from_y) == CheckerType.WHITE_MAN
         ):
-            self.__field.at(move.from_x, move.from_y).change_type(
-                CheckerType.WHITE_KING
-            )
+            self.__field.at(move.from_x, move.from_y).change_type(CheckerType.WHITE_KING)
         elif (
             move.to_y == self.__field.y_size - 1
             and self.__field.type_at(move.from_x, move.from_y) == CheckerType.BLACK_MAN
         ):
-            self.__field.at(move.from_x, move.from_y).change_type(
-                CheckerType.BLACK_KING
-            )
+            self.__field.at(move.from_x, move.from_y).change_type(CheckerType.BLACK_KING)
 
         self.__field.at(move.to_x, move.to_y).change_type(
             self.__field.type_at(move.from_x, move.from_y)
@@ -430,9 +414,7 @@ class Game:
                 if self.__field.type_at(x, y) == cur_man_checker_type:
                     offset: Point
                     for offset in MOVE_OFFSETS:
-                        if not self.__field.is_within(
-                            x + offset.x * 2, y + offset.y * 2
-                        ):
+                        if not self.__field.is_within(x + offset.x * 2, y + offset.y * 2):
                             continue
                         if (
                             self.__field.type_at(x + offset.x, y + offset.y)
@@ -446,9 +428,7 @@ class Game:
                 # if king checker
                 elif self.__field.type_at(x, y) == cur_king_checker_type:
                     for offset in MOVE_OFFSETS:
-                        if not self.__field.is_within(
-                            x + offset.x * 2, y + offset.y * 2
-                        ):
+                        if not self.__field.is_within(x + offset.x * 2, y + offset.y * 2):
                             continue
 
                         has_opponent_checker_on_way = False
@@ -536,9 +516,7 @@ class Game:
                                 == CheckerType.NONE
                             ):
                                 moves_list.append(
-                                    Move(
-                                        x, y, x + offset.x * shift, y + offset.y * shift
-                                    )
+                                    Move(x, y, x + offset.x * shift, y + offset.y * shift)
                                 )
                             else:
                                 break
