@@ -1,23 +1,23 @@
 .PHONY: build
 build:
-	poetry run python ./src/build.py
+	python ./src/build.py
 
 .PHONY: run
 run:
-	poetry run python ./src/main.py
+	python ./src/main.py
 
 .PHONY: format
 format:
-	poetry run isort .
-	poetry run black .
+	isort .
+	black .
 
 .PHONY: lint
 lint:
-	poetry run flake8 .
+	flake8 .
 
 .PHONY: type-check
 type-check:
-	poetry run mypy .
+	mypy .
 
 .PHONY: flt
 flt:
