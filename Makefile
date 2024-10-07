@@ -1,3 +1,7 @@
+.PHONY: build
+build:
+	poetry run python ./src/build.py
+
 .PHONY: run
 run:
 	poetry run python ./src/main.py
@@ -21,4 +25,4 @@ flt:
 	make lint
 	make type-check
 
-DEFAULT_GOAL: run
+DEFAULT_GOAL: build
