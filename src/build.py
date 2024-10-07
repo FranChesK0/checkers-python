@@ -19,7 +19,7 @@ elif system == "Linux":
         "-n checkers "
         "-i ./assets/icon.png "
         "-p ./src "
-        '--hidden-import="PIL._tkinter_finder '
+        '--hidden-import="PIL._tkinter_finder" '
         "./src/main.py "
         "&& /bin/cp -rf ./assets ./dist"
     )
