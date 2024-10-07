@@ -1,7 +1,7 @@
 from math import inf
 from time import sleep
 from random import choice
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 from pathlib import Path
 from tkinter import Event, Canvas, messagebox
 
@@ -58,7 +58,7 @@ class Game:
         if GAME_CONFIG.PLAYER_SIDE == SideType.WHITE:
             player_checkers = WHITE_CHECKERS
         elif GAME_CONFIG.PLAYER_SIDE == SideType.BLACK:
-            player_checkers == BLACK_CHECKERS
+            player_checkers = BLACK_CHECKERS
         else:
             return
 
@@ -338,29 +338,25 @@ class Game:
         self,
         side: SideType,
         prediction_depth: int = 0,
-        all_moves_list: Optional[List[List[Move]]] = None,
-        moves_list: Optional[List[Move]] = None,
-        required_moves_list: Optional[List[Move]] = None,
+        all_moves_list: List[List[Move]] = [],
+        current_moves_list: List[Move] = [],
+        required_moves_list: List[Move] = [],
     ) -> List[List[Move]]:
-        all_moves: List[List[Move]] = all_moves_list or []
-        moves: List[Move] = moves_list or []
-        required_moves: List[Move] = required_moves_list or []
-
-        if moves:
-            all_moves.append(moves)
+        if current_moves_list:
+            all_moves_list.append(current_moves_list)
         else:
-            all_moves.clear()
+            all_moves_list.clear()
 
-        if required_moves:
-            moves = required_moves
+        if required_moves_list:
+            moves_list = required_moves_list
         else:
-            moves = self.__get_moves_list(side)
+            moves_list = self.__get_moves_list(side)
 
-        if moves and prediction_depth < GAME_CONFIG.MAX_PREDICTION_DEPTH:
+        if moves_list and prediction_depth < GAME_CONFIG.MAX_PREDICTION_DEPTH:
             field_copy = Field.copy(self.__field)
-            for move in moves:
+            for move in moves_list:
                 has_killed_checker = self.__handle_move(move, draw=False)
-                required_moves = list(
+                required_moves_list = list(
                     filter(
                         lambda required_move: move.to_x == required_move.from_x
                         and move.to_y == required_move.from_y,
@@ -368,25 +364,25 @@ class Game:
                     )
                 )
 
-                if has_killed_checker and required_moves:
-                    all_moves = self.__get_possible_move_list(
+                if has_killed_checker and required_moves_list:
+                    self.__get_possible_move_list(
                         side,
                         prediction_depth,
-                        all_moves,
-                        moves + [move],
-                        required_moves,
+                        all_moves_list,
+                        current_moves_list + [move],
+                        required_moves_list,
                     )
                 else:
-                    all_moves = self.__get_possible_move_list(
+                    self.__get_possible_move_list(
                         SideType.opposite(side),
                         prediction_depth + 1,
-                        all_moves,
-                        moves + [move],
+                        all_moves_list,
+                        current_moves_list + [move],
                     )
 
                 self.__field = Field.copy(field_copy)
 
-        return all_moves
+        return all_moves_list
 
     def __get_moves_list(self, side: SideType) -> List[Move]:
         moves_list = self.__get_required_moves_list(side)
