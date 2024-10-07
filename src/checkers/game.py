@@ -23,20 +23,16 @@ from .constants import (
 
 class Game:
     def __init__(self, canvas: Canvas, x_field_size: int, y_field_size: int) -> None:
-        self.__canvas = canvas
-        self.__field = Field(x_field_size, y_field_size)
+        self.__canvas: Canvas
+        self.__field: Field
 
-        self.__player_turn = True
+        self.__player_turn: bool
 
-        self.__hovered_cell = Point()
-        self.__selected_cell = Point()
-        self.__animated_cell = Point()
+        self.__hovered_cell: Point
+        self.__selected_cell: Point
+        self.__animated_cell: Point
 
-        self.__init_images()
-        self.__draw()
-
-        if GAME_CONFIG.PLAYER_SIDE == SideType.BLACK:
-            self.__handle_opponent_turn()
+        self.__setup_game(canvas, x_field_size, y_field_size)
 
     def mouse_move(self, event: Event) -> None:
         x, y = event.x // RENDER_PARAMS.CELL_SIZE, event.y // RENDER_PARAMS.CELL_SIZE
@@ -71,6 +67,22 @@ class Game:
                 self.__handle_player_turn(move)
                 if not self.__player_turn:
                     self.__handle_opponent_turn()
+
+    def __setup_game(self, canvas: Canvas, x_field_size: int, y_field_size: int) -> None:
+        self.__canvas = canvas
+        self.__field = Field(x_field_size, y_field_size)
+
+        self.__player_turn = True
+
+        self.__hovered_cell = Point()
+        self.__selected_cell = Point()
+        self.__animated_cell = Point()
+
+        self.__init_images()
+        self.__draw()
+
+        if GAME_CONFIG.PLAYER_SIDE == SideType.BLACK:
+            self.__handle_opponent_turn()
 
     def __init_images(self) -> None:
         self.__images = {
@@ -287,7 +299,7 @@ class Game:
             game_over = True
 
         if game_over:
-            self = Game(self.__canvas, self.__field.x_size, self.__field.y_size)
+            self.__setup_game(self.__canvas, self.__field.x_size, self.__field.y_size)
 
     def __count_optimal_moves(self, side: SideType) -> List[Move]:
         best_result: float = 0.0
