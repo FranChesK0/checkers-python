@@ -1,38 +1,58 @@
-from typing import List
+import dataclasses
+from typing import Tuple, NamedTuple
 
 from .enums import SideType, CheckerType
 from .point import Point
 
-# Side which player starts
-PLAYER_SIDE: SideType = SideType.WHITE
 
-# Field size
-X_SIZE: int = 8
-Y_SIZE: int = 8
-# Cell size in px
-CELL_SIZE: int = 75
+class BoardColors(NamedTuple):
+    Light: str
+    Dark: str
 
-# Animation velocity (grater == faster)
-ANIMATION_SPEED: int = 4
 
-# Number of steps that counts
-MAX_PREDICTION_DEPTH: int = 3
+@dataclasses.dataclass(frozen=True)
+class GameConfig:
+    PLAYER_SIDE: SideType = SideType.WHITE  # side which player starts
+    MAX_PREDICTION_DEPTH: int = 3  # number of steps that counts
 
-# Border width (preferably it should be even)
-BORDER_WIDTH: int = 2 * 2
 
-# Color of the game board
-FIELD_COLORS: List[str] = ["#E7CFA9", "#927456"]
-# Color of the border when hovering
-HOVER_BORDER_COLOR: str = "#54B346"
-# Color of the border when selected
-SELECT_BORDER_COLOR: str = "#944444"
-# Color of possible moves
-POSSIBLE_MOVE_COLOR: str = "#944444"
+@dataclasses.dataclass(frozen=True)
+class RenderParams:
+    X_SIZE: int = 8
+    Y_SIZE: int = 8
+    CELL_SIZE: int = 74  # in px
+    ANIMATION_VELOCITY: int = 4  # grater == faster
+    BORDER_WIDTH: int = 2 * 2  # preferably it should be even
+
+
+@dataclasses.dataclass(frozen=True)
+class Colors:
+    FIELD_COLORS: BoardColors = BoardColors(
+        "#E7CFA9", "#927456"
+    )  # colors of the game board
+    HOVER_BORDER_COLOR: str = "#54B346"  # color of the border when hovering
+    SELECT_BORDER_COLOR: str = "#944444"  # color of the border when selected
+    POSSIBLE_MOVE_COLOR: str = "#944444"  # color of the possible moves
+
 
 # Possible move offsets for checkers
-MOVE_OFFSETS: List[Point] = [Point(-1, -1), Point(1, -1), Point(-1, 1), Point(1, 1)]
+MOVE_OFFSETS: Tuple[Point, Point, Point, Point] = (
+    Point(-1, -1),
+    Point(1, -1),
+    Point(-1, 1),
+    Point(1, 1),
+)
 
-# List of white and black checkers type [man, king]
-WHITE_CHECKERS = [CheckerType.WHITE_MAN, CheckerType.WHITE_KING]
-BLACK_CHECKERS = [CheckerType.BLACK_MAN, CheckerType.BLACK_KING]
+# Tuple of white and black checkers type (man, king)
+WHITE_CHECKERS: Tuple[CheckerType, CheckerType] = (
+    CheckerType.WHITE_MAN,
+    CheckerType.WHITE_KING,
+)
+BLACK_CHECKERS: Tuple[CheckerType, CheckerType] = (
+    CheckerType.BLACK_MAN,
+    CheckerType.BLACK_KING,
+)
+
+GAME_CONFIG: GameConfig = GameConfig()
+RENDER_PARAMS: RenderParams = RenderParams()
+COLORS: Colors = Colors()

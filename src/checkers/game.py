@@ -1,7 +1,7 @@
 from math import inf
 from time import sleep
 from random import choice
-from typing import List
+from typing import List, Tuple, Optional
 from pathlib import Path
 from tkinter import Event, Canvas, messagebox
 
@@ -12,18 +12,12 @@ from .enums import SideType, CheckerType
 from .filed import Field
 from .point import Point
 from .constants import (
-    CELL_SIZE,
-    PLAYER_SIDE,
-    BORDER_WIDTH,
-    FIELD_COLORS,
+    COLORS,
+    GAME_CONFIG,
     MOVE_OFFSETS,
+    RENDER_PARAMS,
     BLACK_CHECKERS,
     WHITE_CHECKERS,
-    ANIMATION_SPEED,
-    HOVER_BORDER_COLOR,
-    POSSIBLE_MOVE_COLOR,
-    SELECT_BORDER_COLOR,
-    MAX_PREDICTION_DEPTH,
 )
 
 
@@ -41,11 +35,11 @@ class Game:
         self.__init_images()
         self.__draw()
 
-        if PLAYER_SIDE == SideType.BLACK:
+        if GAME_CONFIG.PLAYER_SIDE == SideType.BLACK:
             self.__handle_opponent_turn()
 
     def mouse_move(self, event: Event) -> None:
-        x, y = event.x // CELL_SIZE, event.y // CELL_SIZE
+        x, y = event.x // RENDER_PARAMS.CELL_SIZE, event.y // RENDER_PARAMS.CELL_SIZE
         if x != self.__hovered_cell.x or y != self.__hovered_cell.y:
             self.__hovered_cell = Point(x, y)
 
@@ -56,14 +50,14 @@ class Game:
         if not self.__player_turn:
             return
 
-        x, y = event.x // CELL_SIZE, event.y // CELL_SIZE
+        x, y = event.x // RENDER_PARAMS.CELL_SIZE, event.y // RENDER_PARAMS.CELL_SIZE
         if not (self.__field.is_within(x, y)):
             return
 
-        player_checkers = []
-        if PLAYER_SIDE == SideType.WHITE:
+        player_checkers: Tuple[CheckerType, CheckerType]
+        if GAME_CONFIG.PLAYER_SIDE == SideType.WHITE:
             player_checkers = WHITE_CHECKERS
-        elif PLAYER_SIDE == SideType.BLACK:
+        elif GAME_CONFIG.PLAYER_SIDE == SideType.BLACK:
             player_checkers == BLACK_CHECKERS
         else:
             return
@@ -73,7 +67,7 @@ class Game:
             self.__draw()
         elif self.__player_turn:
             move = Move(self.__selected_cell.x, self.__selected_cell.y, x, y)
-            if move in self.__get_moves_list(PLAYER_SIDE):
+            if move in self.__get_moves_list(GAME_CONFIG.PLAYER_SIDE):
                 self.__handle_player_turn(move)
                 if not self.__player_turn:
                     self.__handle_opponent_turn()
@@ -82,25 +76,25 @@ class Game:
         self.__images = {
             CheckerType.WHITE_MAN: ImageTk.PhotoImage(
                 Image.open(Path("assets", "white-man.png")).resize(
-                    (CELL_SIZE, CELL_SIZE),
+                    (RENDER_PARAMS.CELL_SIZE, RENDER_PARAMS.CELL_SIZE),
                     Image.Resampling.LANCZOS,
                 )
             ),
             CheckerType.BLACK_MAN: ImageTk.PhotoImage(
                 Image.open(Path("assets", "black-man.png")).resize(
-                    (CELL_SIZE, CELL_SIZE),
+                    (RENDER_PARAMS.CELL_SIZE, RENDER_PARAMS.CELL_SIZE),
                     Image.Resampling.LANCZOS,
                 )
             ),
             CheckerType.WHITE_KING: ImageTk.PhotoImage(
                 Image.open(Path("assets", "white-king.png")).resize(
-                    (CELL_SIZE, CELL_SIZE),
+                    (RENDER_PARAMS.CELL_SIZE, RENDER_PARAMS.CELL_SIZE),
                     Image.Resampling.LANCZOS,
                 )
             ),
             CheckerType.BLACK_KING: ImageTk.PhotoImage(
                 Image.open(Path("assets", "black-king.png")).resize(
-                    (CELL_SIZE, CELL_SIZE),
+                    (RENDER_PARAMS.CELL_SIZE, RENDER_PARAMS.CELL_SIZE),
                     Image.Resampling.LANCZOS,
                 )
             ),
@@ -111,8 +105,8 @@ class Game:
         self.__draw()
 
         animated_checker = self.__canvas.create_image(
-            move.from_x * CELL_SIZE,
-            move.from_y * CELL_SIZE,
+            move.from_x * RENDER_PARAMS.CELL_SIZE,
+            move.from_y * RENDER_PARAMS.CELL_SIZE,
             image=self.__images.get(self.__field.type_at(move.from_x, move.from_y)),
             anchor="nw",
             tag="animated_checker",
@@ -122,11 +116,17 @@ class Game:
         dy = 1 if move.from_y < move.to_y else -1
 
         for _ in range(abs(move.from_x - move.to_x)):
-            for _ in range(100 // ANIMATION_SPEED):
+            for _ in range(100 // RENDER_PARAMS.ANIMATION_VELOCITY):
                 self.__canvas.move(
                     animated_checker,
-                    ANIMATION_SPEED / 100 * CELL_SIZE * dx,
-                    ANIMATION_SPEED / 100 * CELL_SIZE * dy,
+                    RENDER_PARAMS.ANIMATION_VELOCITY
+                    / 100
+                    * RENDER_PARAMS.CELL_SIZE
+                    * dx,
+                    RENDER_PARAMS.ANIMATION_VELOCITY
+                    / 100
+                    * RENDER_PARAMS.CELL_SIZE
+                    * dy,
                 )
                 self.__canvas.update()
                 sleep(0.01)
@@ -139,49 +139,68 @@ class Game:
         self.__draw_checkers()
 
     def __draw_field_grid(self) -> None:
+        board_colors = [COLORS.FIELD_COLORS.Light, COLORS.FIELD_COLORS.Dark]
         for y in range(self.__field.y_size):
             for x in range(self.__field.x_size):
                 self.__canvas.create_rectangle(
-                    x * CELL_SIZE,
-                    y * CELL_SIZE,
-                    x * CELL_SIZE + CELL_SIZE,
-                    y * CELL_SIZE + CELL_SIZE,
-                    fill=FIELD_COLORS[(y + x) % 2],
+                    x * RENDER_PARAMS.CELL_SIZE,
+                    y * RENDER_PARAMS.CELL_SIZE,
+                    x * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.CELL_SIZE,
+                    y * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.CELL_SIZE,
+                    fill=board_colors[(y + x) % 2],
                     width=0,
                 )
 
                 if x == self.__selected_cell.x and y == self.__selected_cell.y:
                     self.__canvas.create_rectangle(
-                        x * CELL_SIZE + BORDER_WIDTH // 2,
-                        y * CELL_SIZE + BORDER_WIDTH // 2,
-                        x * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
-                        y * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
-                        outline=SELECT_BORDER_COLOR,
-                        width=BORDER_WIDTH,
+                        x * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.BORDER_WIDTH // 2,
+                        y * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.BORDER_WIDTH // 2,
+                        x * RENDER_PARAMS.CELL_SIZE
+                        + RENDER_PARAMS.CELL_SIZE
+                        - RENDER_PARAMS.BORDER_WIDTH // 2,
+                        y * RENDER_PARAMS.CELL_SIZE
+                        + RENDER_PARAMS.CELL_SIZE
+                        - RENDER_PARAMS.BORDER_WIDTH // 2,
+                        outline=COLORS.SELECT_BORDER_COLOR,
+                        width=RENDER_PARAMS.BORDER_WIDTH,
                     )
                 elif x == self.__hovered_cell.x and y == self.__hovered_cell.y:
                     self.__canvas.create_rectangle(
-                        x * CELL_SIZE + BORDER_WIDTH // 2,
-                        y * CELL_SIZE + BORDER_WIDTH // 2,
-                        x * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
-                        y * CELL_SIZE + CELL_SIZE - BORDER_WIDTH // 2,
-                        outline=HOVER_BORDER_COLOR,
-                        width=BORDER_WIDTH,
+                        x * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.BORDER_WIDTH // 2,
+                        y * RENDER_PARAMS.CELL_SIZE + RENDER_PARAMS.BORDER_WIDTH // 2,
+                        x * RENDER_PARAMS.CELL_SIZE
+                        + RENDER_PARAMS.CELL_SIZE
+                        - RENDER_PARAMS.BORDER_WIDTH // 2,
+                        y * RENDER_PARAMS.CELL_SIZE
+                        + RENDER_PARAMS.CELL_SIZE
+                        - RENDER_PARAMS.BORDER_WIDTH // 2,
+                        outline=COLORS.HOVER_BORDER_COLOR,
+                        width=RENDER_PARAMS.BORDER_WIDTH,
                     )
 
                 if self.__selected_cell:
-                    player_moves_list = self.__get_moves_list(PLAYER_SIDE)
+                    player_moves_list = self.__get_moves_list(GAME_CONFIG.PLAYER_SIDE)
                     for move in player_moves_list:
                         if (
                             self.__selected_cell.x == move.from_x
                             and self.__selected_cell.y == move.from_y
                         ):
                             self.__canvas.create_oval(
-                                move.to_x * CELL_SIZE + CELL_SIZE / 3,
-                                move.to_y * CELL_SIZE + CELL_SIZE / 3,
-                                move.to_x * CELL_SIZE + (CELL_SIZE - CELL_SIZE / 3),
-                                move.to_y * CELL_SIZE + (CELL_SIZE - CELL_SIZE / 3),
-                                fill=POSSIBLE_MOVE_COLOR,
+                                move.to_x * RENDER_PARAMS.CELL_SIZE
+                                + RENDER_PARAMS.CELL_SIZE / 3,
+                                move.to_y * RENDER_PARAMS.CELL_SIZE
+                                + RENDER_PARAMS.CELL_SIZE / 3,
+                                move.to_x * RENDER_PARAMS.CELL_SIZE
+                                + (
+                                    RENDER_PARAMS.CELL_SIZE
+                                    - RENDER_PARAMS.CELL_SIZE / 3
+                                ),
+                                move.to_y * RENDER_PARAMS.CELL_SIZE
+                                + (
+                                    RENDER_PARAMS.CELL_SIZE
+                                    - RENDER_PARAMS.CELL_SIZE / 3
+                                ),
+                                fill=COLORS.POSSIBLE_MOVE_COLOR,
                                 width=0,
                             )
 
@@ -192,8 +211,8 @@ class Game:
                     x == self.__animated_cell.x and y == self.__animated_cell.y
                 ):
                     self.__canvas.create_image(
-                        x * CELL_SIZE,
-                        y * CELL_SIZE,
+                        x * RENDER_PARAMS.CELL_SIZE,
+                        y * RENDER_PARAMS.CELL_SIZE,
                         image=self.__images.get(self.__field.type_at(x, y)),
                         anchor="nw",
                         tag="checkers",
@@ -248,7 +267,7 @@ class Game:
             filter(
                 lambda required_move: move.to_x == required_move.from_x
                 and move.to_y == required_move.from_y,
-                self.__get_required_moves_list(PLAYER_SIDE),
+                self.__get_required_moves_list(GAME_CONFIG.PLAYER_SIDE),
             )
         )
 
@@ -260,7 +279,9 @@ class Game:
     def __handle_opponent_turn(self) -> None:
         self.__player_turn = False
 
-        optimal_moves_list = self.__count_optimal_moves(SideType.opposite(PLAYER_SIDE))
+        optimal_moves_list = self.__count_optimal_moves(
+            SideType.opposite(GAME_CONFIG.PLAYER_SIDE)
+        )
 
         for move in optimal_moves_list:
             self.__handle_move(move)
@@ -283,7 +304,6 @@ class Game:
 
         if game_over:
             self = Game(self.__canvas, self.__field.x_size, self.__field.y_size)
-            # self.__init__(self.__canvas, self.__field.x_size, self.__field.y_size)
 
     def __count_optimal_moves(self, side: SideType) -> List[Move]:
         best_result: float = 0.0
@@ -334,25 +354,29 @@ class Game:
         self,
         side: SideType,
         prediction_depth: int = 0,
-        all_moves_list: List[List[Move]] = [],
-        moves_list: List[Move] = [],
-        required_moves_list: List[Move] = [],
+        all_moves_list: Optional[List[List[Move]]] = None,
+        moves_list: Optional[List[Move]] = None,
+        required_moves_list: Optional[List[Move]] = None,
     ) -> List[List[Move]]:
-        if moves_list:
-            all_moves_list.append(moves_list)
-        else:
-            all_moves_list.clear()
+        all_moves: List[List[Move]] = all_moves_list or []
+        moves: List[Move] = moves_list or []
+        required_moves: List[Move] = required_moves_list or []
 
-        if required_moves_list:
-            moves_list = required_moves_list
+        if moves:
+            all_moves.append(moves)
         else:
-            moves_list = self.__get_moves_list(side)
+            all_moves.clear()
 
-        if moves_list and prediction_depth < MAX_PREDICTION_DEPTH:
+        if required_moves:
+            moves = required_moves
+        else:
+            moves = self.__get_moves_list(side)
+
+        if moves and prediction_depth < GAME_CONFIG.MAX_PREDICTION_DEPTH:
             field_copy = Field.copy(self.__field)
-            for move in moves_list:
+            for move in moves:
                 has_killed_checker = self.__handle_move(move, draw=False)
-                required_moves_list = list(
+                required_moves = list(
                     filter(
                         lambda required_move: move.to_x == required_move.from_x
                         and move.to_y == required_move.from_y,
@@ -360,25 +384,25 @@ class Game:
                     )
                 )
 
-                if has_killed_checker and required_moves_list:
-                    self.__get_possible_move_list(
+                if has_killed_checker and required_moves:
+                    all_moves = self.__get_possible_move_list(
                         side,
                         prediction_depth,
-                        all_moves_list,
-                        moves_list + [move],
-                        required_moves_list,
+                        all_moves,
+                        moves + [move],
+                        required_moves,
                     )
                 else:
-                    self.__get_possible_move_list(
+                    all_moves = self.__get_possible_move_list(
                         SideType.opposite(side),
                         prediction_depth + 1,
-                        all_moves_list,
-                        moves_list + [move],
+                        all_moves,
+                        moves + [move],
                     )
 
                 self.__field = Field.copy(field_copy)
 
-        return all_moves_list
+        return all_moves
 
     def __get_moves_list(self, side: SideType) -> List[Move]:
         moves_list = self.__get_required_moves_list(side)

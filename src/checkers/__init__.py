@@ -1,4 +1,4 @@
-from .constants import X_SIZE, Y_SIZE, CELL_SIZE
+from .constants import RENDER_PARAMS
 from .game import Game
 
-__all__ = ["X_SIZE", "Y_SIZE", "CELL_SIZE", "Game"]
+__all__ = ["RENDER_PARAMS", "Game"]
