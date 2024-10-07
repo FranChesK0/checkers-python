@@ -7,7 +7,9 @@ license = "MIT license"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.13"
+pillow = "^10.4.0"
+pyinstaller = "^6.10.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -19,9 +21,9 @@ isort = "^5.13.2"
 mypy = "^1.11.2"
 pre-commit = "^4.0.0"
 
-[tool.blck]
+[tool.black]
 line-length = 90
-target-version = ["py12"]
+target-version = ["py312"]
 
 [tool.isort]
 profile = "black"
