@@ -1,1 +1,2 @@
-# checkers-python
+# Checkers
+Simple Checkers game written in Python.
