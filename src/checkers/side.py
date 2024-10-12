@@ -13,11 +13,3 @@ class SideType(enum.Enum):
                 return SideType.WHITE
             case _:
                 raise ValueError()
-
-
-class CheckerType(enum.Enum):
-    NONE: int = enum.auto()
-    WHITE_MAN: int = enum.auto()
-    BLACK_MAN: int = enum.auto()
-    WHITE_KING: int = enum.auto()
-    BLACK_KING: int = enum.auto()
