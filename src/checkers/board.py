@@ -17,6 +17,32 @@ class Board:
 
         self.__generate()
 
+    def __repr__(self) -> str:
+        board = ""
+        for y in range(self.y_size):
+            for x in range(self.x_size):
+                ct = self.type_at(x, y)
+                if ct == CheckerType.NONE:
+                    board += "-- "
+                elif ct == CheckerType.WHITE_MAN:
+                    board += "WM "
+                elif ct == CheckerType.WHITE_KING:
+                    board += "WK "
+                elif ct == CheckerType.BLACK_MAN:
+                    board += "BM "
+                else:
+                    board += "BK "
+            board += "\n"
+        return f"x[{self.x_size}]:y[{self.y_size}]\n{board}"
+
+    @classmethod
+    def copy(cls, board: "Board") -> "Board":
+        board_copy = cls(board.x_size, board.y_size)
+        for y in range(board.y_size):
+            for x in range(board.x_size):
+                board_copy.at(x, y).type = board.type_at(x, y)
+        return board_copy
+
     @property
     def x_size(self) -> int:
         return self.__x_size
@@ -44,6 +70,13 @@ class Board:
     @property
     def black_score(self) -> int:
         return self.__score(CheckerType.BLACK_MAN, CheckerType.BLACK_KING)
+
+    def restore_copy(self, board: "Board") -> None:
+        self.__x_size = board.x_size
+        self.__y_size = board.y_size
+        for y in range(board.y_size):
+            for x in range(board.x_size):
+                self.at(x, y).type = board.type_at(x, y)
 
     def is_within(self, x: int, y: int) -> bool:
         return 0 <= x < self.x_size and 0 <= y < self.y_size
@@ -157,7 +190,7 @@ class Board:
         possible_moves = self.__get_possible_moves(side, max_prediction_depth)
 
         if possible_moves:
-            checkers_copy = self.__checkers
+            board_copy = Board.copy(self)
             for moves in possible_moves:
                 for move in moves:
                     self.handle_move(move)
@@ -174,7 +207,7 @@ class Board:
                         optimal_moves.append(moves)
                     elif result == best_result:
                         optimal_moves.append(moves)
-                    self.__checkers = checkers_copy
+                    self.restore_copy(board_copy)
 
         optimal_move: List[Move] = []
         if optimal_moves:
@@ -284,7 +317,7 @@ class Board:
         else:
             moves = self.get_moves(side)
         if moves and prediction_depth < max_prediction_depth:
-            checkers_copy = self.__checkers
+            board_copy = Board.copy(self)
             for move in moves:
                 has_killed = self.handle_move(move)
                 required_moves = list(
@@ -310,5 +343,5 @@ class Board:
                         all_moves,
                         current_moves + [move],
                     )
-                self.__checkers = checkers_copy
+                self.restore_copy(board_copy)
         return all_moves
