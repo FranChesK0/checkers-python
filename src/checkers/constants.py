@@ -2,7 +2,7 @@ import dataclasses
 from typing import Tuple, NamedTuple
 
 from .enums import SideType, CheckerType
-from .point import Point
+from .position import Position
 
 
 class BoardColors(NamedTuple):
@@ -36,11 +36,11 @@ class Colors:
 
 
 # Possible move offsets for checkers
-MOVE_OFFSETS: Tuple[Point, Point, Point, Point] = (
-    Point(-1, -1),
-    Point(1, -1),
-    Point(-1, 1),
-    Point(1, 1),
+MOVE_OFFSETS: Tuple[Position, Position, Position, Position] = (
+    Position(-1, -1),
+    Position(1, -1),
+    Position(-1, 1),
+    Position(1, 1),
 )
 
 # Tuple of white and black checkers type (man, king)

@@ -10,7 +10,7 @@ from PIL import Image, ImageTk
 from .move import Move
 from .enums import SideType, CheckerType
 from .filed import Field
-from .point import Point
+from .position import Position
 from .constants import (
     COLORS,
     GAME_CONFIG,
@@ -28,16 +28,16 @@ class Game:
 
         self.__player_turn: bool
 
-        self.__hovered_cell: Point
-        self.__selected_cell: Point
-        self.__animated_cell: Point
+        self.__hovered_cell: Position
+        self.__selected_cell: Position
+        self.__animated_cell: Position
 
         self.__setup_game(canvas, x_field_size, y_field_size)
 
     def mouse_move(self, event: Event) -> None:
         x, y = event.x // RENDER_PARAMS.CELL_SIZE, event.y // RENDER_PARAMS.CELL_SIZE
         if x != self.__hovered_cell.x or y != self.__hovered_cell.y:
-            self.__hovered_cell = Point(x, y)
+            self.__hovered_cell = Position(x, y)
 
             if self.__player_turn:
                 self.__draw()
@@ -59,7 +59,7 @@ class Game:
             return
 
         if self.__field.type_at(x, y) in player_checkers:
-            self.__selected_cell = Point(x, y)
+            self.__selected_cell = Position(x, y)
             self.__draw()
         elif self.__player_turn:
             move = Move(self.__selected_cell.x, self.__selected_cell.y, x, y)
@@ -74,9 +74,9 @@ class Game:
 
         self.__player_turn = True
 
-        self.__hovered_cell = Point()
-        self.__selected_cell = Point()
-        self.__animated_cell = Point()
+        self.__hovered_cell = Position()
+        self.__selected_cell = Position()
+        self.__animated_cell = Position()
 
         self.__init_images()
         self.__draw()
@@ -113,7 +113,7 @@ class Game:
         }
 
     def __animate_move(self, move: Move) -> None:
-        self.__animated_cell = Point(move.from_x, move.from_y)
+        self.__animated_cell = Position(move.from_x, move.from_y)
         self.__draw()
 
         animated_checker = self.__canvas.create_image(
@@ -137,7 +137,7 @@ class Game:
                 self.__canvas.update()
                 sleep(0.01)
 
-        self.__animated_cell = Point()
+        self.__animated_cell = Position()
 
     def __draw(self) -> None:
         self.__canvas.delete("all")
@@ -270,7 +270,7 @@ class Game:
         if has_killed_checker and required_moves_list:
             self.__player_turn = True
 
-        self.__selected_cell = Point()
+        self.__selected_cell = Position()
 
     def __handle_opponent_turn(self) -> None:
         self.__player_turn = False
@@ -420,7 +420,7 @@ class Game:
             for x in range(self.__field.x_size):
                 # if man checker
                 if self.__field.type_at(x, y) == cur_man_checker_type:
-                    offset: Point
+                    offset: Position
                     for offset in MOVE_OFFSETS:
                         if not self.__field.is_within(x + offset.x * 2, y + offset.y * 2):
                             continue

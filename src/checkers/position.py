@@ -1,4 +1,8 @@
-class Point:
+import dataclasses
+
+
+@dataclasses.dataclass(frozen=True)
+class Position:
     def __init__(self, x: int = -1, y: int = -1) -> None:
         self.__x = x
         self.__y = y
@@ -10,8 +14,3 @@ class Point:
     @property
     def y(self) -> int:
         return self.__y
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Point):
-            return self.x == other.x and self.y == other.y
-        return NotImplemented
