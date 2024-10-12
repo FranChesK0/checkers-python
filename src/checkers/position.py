@@ -1,7 +1,7 @@
 import dataclasses
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass()
 class Position:
     def __init__(self, x: int = -1, y: int = -1) -> None:
         self.__x = x

@@ -3,7 +3,7 @@ import dataclasses
 from .position import Position
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass()
 class Move:
     def __init__(self, from_: Position = Position(), to: Position = Position()) -> None:
         self.__from = from_
