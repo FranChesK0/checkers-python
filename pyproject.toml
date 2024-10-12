@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "checkers-python"
 version = "0.1.1"
-description = ""
+description = "Checkers game written in Python"
 authors = ["FranChesKo"]
 license = "MIT license"
 readme = "README.md"
