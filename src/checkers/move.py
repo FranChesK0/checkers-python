@@ -18,7 +18,7 @@ class Move:
         return self.__to
 
     def __repr__(self) -> str:
-        return f"{self.from_.x}:{self.from_.y} -> {self.to.x}-{self.to.y}"
+        return f"{self.from_.x}:{self.from_.y} -> {self.to.x}:{self.to.y}"
 
     def __str__(self) -> str:
         return self.__repr__()
