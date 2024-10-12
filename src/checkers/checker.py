@@ -1,4 +1,5 @@
 import enum
+from typing import Tuple
 
 
 class CheckerType(enum.Enum):
@@ -20,3 +21,14 @@ class Checker:
     @type.setter
     def type(self, type: CheckerType) -> None:
         self.__type = type
+
+
+# Tuples of white and black checkers type (man, king)
+WHITE_CHECKERS: Tuple[CheckerType, CheckerType] = (
+    CheckerType.WHITE_MAN,
+    CheckerType.WHITE_KING,
+)
+BLACK_CHECKERS: Tuple[CheckerType, CheckerType] = (
+    CheckerType.BLACK_MAN,
+    CheckerType.BLACK_KING,
+)

@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Tuple
 
 
 @dataclasses.dataclass()
@@ -14,3 +15,12 @@ class Position:
     @property
     def y(self) -> int:
         return self.__y
+
+
+# Possible move offsets for checkers
+MOVE_OFFSETS: Tuple[Position, Position, Position, Position] = (
+    Position(-1, -1),
+    Position(1, -1),
+    Position(-1, 1),
+    Position(1, 1),
+)
