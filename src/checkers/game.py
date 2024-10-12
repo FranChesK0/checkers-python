@@ -62,7 +62,9 @@ class Game:
             self.__selected_cell = Position(x, y)
             self.__draw()
         elif self.__player_turn:
-            move = Move(self.__selected_cell.x, self.__selected_cell.y, x, y)
+            move = Move(
+                Position(self.__selected_cell.x, self.__selected_cell.y), Position(x, y)
+            )
             if move in self.__get_moves_list(GAME_CONFIG.PLAYER_SIDE):
                 self.__handle_player_turn(move)
                 if not self.__player_turn:
@@ -113,21 +115,21 @@ class Game:
         }
 
     def __animate_move(self, move: Move) -> None:
-        self.__animated_cell = Position(move.from_x, move.from_y)
+        self.__animated_cell = Position(move.from_.x, move.from_.y)
         self.__draw()
 
         animated_checker = self.__canvas.create_image(
-            move.from_x * RENDER_PARAMS.CELL_SIZE,
-            move.from_y * RENDER_PARAMS.CELL_SIZE,
-            image=self.__images.get(self.__field.type_at(move.from_x, move.from_y)),
+            move.from_.x * RENDER_PARAMS.CELL_SIZE,
+            move.from_.y * RENDER_PARAMS.CELL_SIZE,
+            image=self.__images.get(self.__field.type_at(move.from_.x, move.from_.y)),
             anchor="nw",
             tag="animated_checker",
         )
 
-        dx = 1 if move.from_x < move.to_x else -1
-        dy = 1 if move.from_y < move.to_y else -1
+        dx = 1 if move.from_.x < move.to.x else -1
+        dy = 1 if move.from_.y < move.to.y else -1
 
-        for _ in range(abs(move.from_x - move.to_x)):
+        for _ in range(abs(move.from_.x - move.to.x)):
             for _ in range(100 // RENDER_PARAMS.ANIMATION_VELOCITY):
                 self.__canvas.move(
                     animated_checker,
@@ -188,17 +190,17 @@ class Game:
                     player_moves_list = self.__get_moves_list(GAME_CONFIG.PLAYER_SIDE)
                     for move in player_moves_list:
                         if (
-                            self.__selected_cell.x == move.from_x
-                            and self.__selected_cell.y == move.from_y
+                            self.__selected_cell.x == move.from_.x
+                            and self.__selected_cell.y == move.from_.y
                         ):
                             self.__canvas.create_oval(
-                                move.to_x * RENDER_PARAMS.CELL_SIZE
+                                move.to.x * RENDER_PARAMS.CELL_SIZE
                                 + RENDER_PARAMS.CELL_SIZE / 3,
-                                move.to_y * RENDER_PARAMS.CELL_SIZE
+                                move.to.y * RENDER_PARAMS.CELL_SIZE
                                 + RENDER_PARAMS.CELL_SIZE / 3,
-                                move.to_x * RENDER_PARAMS.CELL_SIZE
+                                move.to.x * RENDER_PARAMS.CELL_SIZE
                                 + (RENDER_PARAMS.CELL_SIZE - RENDER_PARAMS.CELL_SIZE / 3),
-                                move.to_y * RENDER_PARAMS.CELL_SIZE
+                                move.to.y * RENDER_PARAMS.CELL_SIZE
                                 + (RENDER_PARAMS.CELL_SIZE - RENDER_PARAMS.CELL_SIZE / 3),
                                 fill=COLORS.POSSIBLE_MOVE_COLOR,
                                 width=0,
@@ -223,27 +225,31 @@ class Game:
             self.__animate_move(move)
 
         if (
-            move.to_y == 0
-            and self.__field.type_at(move.from_x, move.from_y) == CheckerType.WHITE_MAN
+            move.to.y == 0
+            and self.__field.type_at(move.from_.x, move.from_.y) == CheckerType.WHITE_MAN
         ):
-            self.__field.at(move.from_x, move.from_y).change_type(CheckerType.WHITE_KING)
+            self.__field.at(move.from_.x, move.from_.y).change_type(
+                CheckerType.WHITE_KING
+            )
         elif (
-            move.to_y == self.__field.y_size - 1
-            and self.__field.type_at(move.from_x, move.from_y) == CheckerType.BLACK_MAN
+            move.to.y == self.__field.y_size - 1
+            and self.__field.type_at(move.from_.x, move.from_.y) == CheckerType.BLACK_MAN
         ):
-            self.__field.at(move.from_x, move.from_y).change_type(CheckerType.BLACK_KING)
+            self.__field.at(move.from_.x, move.from_.y).change_type(
+                CheckerType.BLACK_KING
+            )
 
-        self.__field.at(move.to_x, move.to_y).change_type(
-            self.__field.type_at(move.from_x, move.from_y)
+        self.__field.at(move.to.x, move.to.y).change_type(
+            self.__field.type_at(move.from_.x, move.from_.y)
         )
-        self.__field.at(move.from_x, move.from_y).change_type(CheckerType.NONE)
+        self.__field.at(move.from_.x, move.from_.y).change_type(CheckerType.NONE)
 
-        dx = -1 if move.from_x < move.to_x else 1
-        dy = -1 if move.from_y < move.to_y else 1
+        dx = -1 if move.from_.x < move.to.x else 1
+        dy = -1 if move.from_.y < move.to.y else 1
 
         has_killed_checker = False
-        x, y = move.to_x, move.to_y
-        while x != move.from_x or y != move.from_y:
+        x, y = move.to.x, move.to.y
+        while x != move.from_.x or y != move.from_.y:
             x += dx
             y += dy
             if self.__field.type_at(x, y) != CheckerType.NONE:
@@ -261,8 +267,8 @@ class Game:
         has_killed_checker = self.__handle_move(move)
         required_moves_list = list(
             filter(
-                lambda required_move: move.to_x == required_move.from_x
-                and move.to_y == required_move.from_y,
+                lambda required_move: move.to.x == required_move.from_.x
+                and move.to.y == required_move.from_.y,
                 self.__get_required_moves_list(GAME_CONFIG.PLAYER_SIDE),
             )
         )
@@ -334,12 +340,12 @@ class Game:
             for move in choice(optimal_moves):
                 if (
                     side == SideType.WHITE
-                    and self.__field.type_at(move.from_x, move.from_y) in BLACK_CHECKERS
+                    and self.__field.type_at(move.from_.x, move.from_.y) in BLACK_CHECKERS
                 ):
                     break
                 elif (
                     side == SideType.BLACK
-                    and self.__field.type_at(move.from_x, move.from_y) in WHITE_CHECKERS
+                    and self.__field.type_at(move.from_.x, move.from_.y) in WHITE_CHECKERS
                 ):
                     break
                 optimal_move.append(move)
@@ -370,8 +376,8 @@ class Game:
                 has_killed_checker = self.__handle_move(move, draw=False)
                 required_moves_list = list(
                     filter(
-                        lambda required_move: move.to_x == required_move.from_x
-                        and move.to_y == required_move.from_y,
+                        lambda required_move: move.to.x == required_move.from_.x
+                        and move.to.y == required_move.from_.y,
                         self.__get_required_moves_list(side),
                     )
                 )
@@ -431,7 +437,10 @@ class Game:
                             == CheckerType.NONE
                         ):
                             moves_list.append(
-                                Move(x, y, x + offset.x * 2, y + offset.y * 2)
+                                Move(
+                                    Position(x, y),
+                                    Position(x + offset.x * 2, y + offset.y * 2),
+                                )
                             )
                 # if king checker
                 elif self.__field.type_at(x, y) == cur_king_checker_type:
@@ -470,10 +479,10 @@ class Game:
                                 ):
                                     moves_list.append(
                                         Move(
-                                            x,
-                                            y,
-                                            x + offset.x * shift,
-                                            y + offset.y * shift,
+                                            Position(x, y),
+                                            Position(
+                                                x + offset.x * shift, y + offset.y * shift
+                                            ),
                                         )
                                     )
                                 else:
@@ -506,7 +515,9 @@ class Game:
                             self.__field.type_at(x + offset.x, y + offset.y)
                             == CheckerType.NONE
                         ):
-                            moves_list.append(Move(x, y, x + offset.x, y + offset.y))
+                            moves_list.append(
+                                Move(Position(x, y), Position(x + offset.x, y + offset.y))
+                            )
                 # if king checker
                 elif self.__field.type_at(x, y) == cur_king_checker_type:
                     for offset in MOVE_OFFSETS:
@@ -524,7 +535,12 @@ class Game:
                                 == CheckerType.NONE
                             ):
                                 moves_list.append(
-                                    Move(x, y, x + offset.x * shift, y + offset.y * shift)
+                                    Move(
+                                        Position(x, y),
+                                        Position(
+                                            x + offset.x * shift, y + offset.y * shift
+                                        ),
+                                    )
                                 )
                             else:
                                 break
