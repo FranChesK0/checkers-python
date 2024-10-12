@@ -6,23 +6,15 @@ build:
 run:
 	python ./src/main.py
 
-.PHONY: format
+.PHONY: lint
 format:
 	isort .
 	black .
-
-.PHONY: lint
-lint:
 	flake8 .
-
-.PHONY: type-check
-type-check:
 	mypy .
 
-.PHONY: flt
-flt:
-	make format
-	make lint
-	make type-check
+.PHONY: pre-commit
+pre-commit:
+	pre-commit run --all-files
 
 DEFAULT_GOAL: build
