@@ -1,7 +1,6 @@
 from functools import reduce
 
-from .enums import CheckerType
-from .checker import Checker
+from .checker import Checker, CheckerType
 from .constants import BLACK_CHECKERS, WHITE_CHECKERS
 
 
@@ -73,7 +72,7 @@ class Field:
 
         for y in range(field.y_size):
             for x in range(field.x_size):
-                field_copy.at(x, y).change_type(field.type_at(x, y))
+                field_copy.at(x, y).type = field.type_at(x, y)
 
         return field_copy
 
@@ -86,9 +85,9 @@ class Field:
             for x in range(self.x_size):
                 if (y + x) % 2:
                     if y < 3:
-                        self.__checkers[y][x].change_type(CheckerType.BLACK_MAN)
+                        self.__checkers[y][x].type = CheckerType.BLACK_MAN
                     elif y >= self.y_size - 3:
-                        self.__checkers[y][x].change_type(CheckerType.WHITE_MAN)
+                        self.__checkers[y][x].type = CheckerType.WHITE_MAN
 
     def type_at(self, x: int, y: int) -> CheckerType:
         return self.__checkers[y][x].type

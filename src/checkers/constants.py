@@ -1,7 +1,8 @@
 import dataclasses
 from typing import Tuple, NamedTuple
 
-from .enums import SideType, CheckerType
+from .side import SideType
+from .checker import CheckerType
 from .position import Position
 
 

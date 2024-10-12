@@ -8,8 +8,9 @@ from tkinter import Event, Canvas, messagebox
 from PIL import Image, ImageTk
 
 from .move import Move
-from .enums import SideType, CheckerType
+from .side import SideType
 from .filed import Field
+from .checker import CheckerType
 from .position import Position
 from .constants import (
     COLORS,
@@ -228,21 +229,17 @@ class Game:
             move.to.y == 0
             and self.__field.type_at(move.from_.x, move.from_.y) == CheckerType.WHITE_MAN
         ):
-            self.__field.at(move.from_.x, move.from_.y).change_type(
-                CheckerType.WHITE_KING
-            )
+            self.__field.at(move.from_.x, move.from_.y).type = CheckerType.WHITE_KING
         elif (
             move.to.y == self.__field.y_size - 1
             and self.__field.type_at(move.from_.x, move.from_.y) == CheckerType.BLACK_MAN
         ):
-            self.__field.at(move.from_.x, move.from_.y).change_type(
-                CheckerType.BLACK_KING
-            )
+            self.__field.at(move.from_.x, move.from_.y).type = CheckerType.BLACK_KING
 
-        self.__field.at(move.to.x, move.to.y).change_type(
-            self.__field.type_at(move.from_.x, move.from_.y)
+        self.__field.at(move.to.x, move.to.y).type = self.__field.type_at(
+            move.from_.x, move.from_.y
         )
-        self.__field.at(move.from_.x, move.from_.y).change_type(CheckerType.NONE)
+        self.__field.at(move.from_.x, move.from_.y).type = CheckerType.NONE
 
         dx = -1 if move.from_.x < move.to.x else 1
         dy = -1 if move.from_.y < move.to.y else 1
@@ -253,7 +250,7 @@ class Game:
             x += dx
             y += dy
             if self.__field.type_at(x, y) != CheckerType.NONE:
-                self.__field.at(x, y).change_type(CheckerType.NONE)
+                self.__field.at(x, y).type = CheckerType.NONE
                 has_killed_checker = True
 
         if draw:
