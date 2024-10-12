@@ -7,7 +7,7 @@ run:
 	python ./src/main.py
 
 .PHONY: lint
-format:
+lint:
 	isort .
 	black .
 	flake8 .
